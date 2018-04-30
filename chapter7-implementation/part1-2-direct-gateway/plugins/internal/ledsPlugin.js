@@ -7,7 +7,8 @@ var localParams = {'simulate': false, 'frequency': 2000};
 
 exports.start = function (params) {
   localParams = params;
-  observe(model); //#A
+  //observe(model); //#A
+  proxied.model; //#A
 
   if (localParams.simulate) {
     simulate();
@@ -25,12 +26,22 @@ exports.stop = function () {
   console.info('%s plugin stopped!', pluginName);
 };
 
-function observe(what) {
-  Object.observe(what, function (changes) {
-    console.info('Change detected by plugin for %s...', pluginName);
-    switchOnOff(model.value); //#B
-  });
-};
+//function observe(what) {
+//  Object.observe(what, function (changes) {
+//    console.info('Change detected by plugin for %s...', pluginName);
+//    switchOnOff(model.value); //#B
+//  });
+//};
+var proxied = new Proxy(obj, {
+  get: function(target, prop) {
+    console.log({ type: 'get', target, prop });
+    return Reflect.get(target, prop);
+  },
+  set: function(target, prop, value) {
+    console.log({ type: 'set', target, prop, value });
+    return Reflect.set(target, prop, value);
+  }
+});
 
 function switchOnOff(value) {
   if (!localParams.simulate) {
